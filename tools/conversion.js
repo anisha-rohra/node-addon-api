@@ -6,23 +6,39 @@ const fs = require('fs');
 const path = require('path');
 
 const args = process.argv.slice(2);
+console.log("argv: " + process.argv + ", args: " + args);
+
 const dir = args[0];
-if (!dir) {
+if (!dir && dir == "--disable") {
   console.log('Usage: node ' + path.basename(__filename) + ' <target-dir>');
   process.exit(1);
 }
+console.log("dir: " + dir);
 
 const NodeApiVersion = require('../package.json').version;
 
-var ConfigFileOperations = {
-  'package.json': [
-    [ /"nan": *"[^"]+"/g, '"node-addon-api": "' + NodeApiVersion + '"' ]
-  ],
-  'binding.gyp': [
-    [ /\(node -e \\("|')require\(("|')nan("|')\)\\("|')\)/g, '@(node -p \\$1require(\$2node-addon-api\$3).include\\$4)' ],
-    [ /("|')target_name("|'): ("|')(.+?)("|'),/g, '$1target_name$2: $3$4$5,\n      $1cflags!$1: [ $1-fno-exceptions$1 ],\n      $1cflags_cc!$1: [ $1-fno-exceptions$1 ],' ],
-  ]
-};
+const disable = args[1];
+if (disable != "--disable" && dir != "--disable") { 
+  var ConfigFileOperations = {
+    'package.json': [
+      [ /"nan": *"[^"]+"/g, '"node-addon-api": "' + NodeApiVersion + '"' ]
+    ],
+    'binding.gyp': [
+      [ /\(node -e \\("|')require\(("|')nan("|')\)\\("|')\)/g, '@(node -p \\$1require(\$2node-addon-api\$3).include\\$4)' ],
+      [ /("|')target_name("|'): ("|')(.+?)("|'),/g, '$1target_name$2: $3$4$5,\n      $1cflags!$1: [ $1-fno-exceptions$1 ],\n      $1cflags_cc!$1: [ $1-fno-exceptions$1 ],\n      $1xcode_settings$1: { $1GCC_ENABLE_CPP_EXCEPTIONS$1: $1YES$1,\n        $1CLANG_CXX_LIBRARY$1: $1libc++$1,\n        $1MACOSX_DEPLOYMENT_TARGET$1: $110.7$1,\n      },\n      $1msvs_settings$1: {\n        $1VCCLCompilerTool$1: { $1ExceptionHandling$1: 1 },\n      },' ],
+    ]
+  };
+} else {
+  var ConfigFileOperations = {
+    'package.json': [
+      [ /"nan": *"[^"]+"/g, '"node-addon-api": "' + NodeApiVersion + '"' ]
+    ],
+    'binding.gyp': [
+      [ /\(node -e \\("|')require\(("|')nan("|')\)\\("|')\)/g, '@(node -p \\$1require(\$2node-addon-api\$3).include\\$4)' ],
+      [ /("|')target_name("|'): ("|')(.+?)("|'),/g, '$1target_name$2: $3$4$5,\n      $1cflags!$1: [ $1-fno-exceptions$1 ],\n      $1cflags_cc!$1: [ $1-fno-exceptions$1 ],\n      $1defines$1: [ $1NAPI_DISABLE_CPP_EXCEPTIONS$1 ],' ],
+    ]
+  };
+}
 
 var SourceFileOperations = [
   [ /v8::Local<v8::FunctionTemplate>\s+(\w+)\s*=\s*Nan::New<FunctionTemplate>\([\w\d:]+\);(?:\w+->Reset\(\1\))?\s+\1->SetClassName\(Nan::String::New\("(\w+)"\)\);/g, 'Napi::Function $1 = DefineClass(env, "$2", {' ],
