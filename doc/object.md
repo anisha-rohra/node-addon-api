@@ -2,7 +2,7 @@
 
 Object is a Javascript object value. A common usecase is to assign many values to a single object. 
 
-Object is extended by [Value](value.md) and extends [Array](array.md), [ArrayBuffer](arraybuffer.md), [Buffer<T>](buffer.md), [Function](function.md), and [TypedArray](typedarray.md). 
+Object is extended by [Value](value.md) and extends [Array](array.md), [ArrayBuffer](array_buffer.md), [Buffer<T>](buffer.md), [Function](function.md), and [TypedArray](typed_array.md). 
 
 ## Methods
 
@@ -31,60 +31,16 @@ Napi::Object::Object(napi_env env, napi_value value);
   - napi::Value
   - napi_value
 
-Creates a non-empty Object instance
+Creates a non-empty Object instance.
 
 ### New()
 
 ```cpp
-Object Napi::Object::New (napi_env env);
+Object Napi::Object::New(napi_env env);
 ```
 - `[in] env`: The `napi_env` environment in which to construct the Value object.
 
 Creates a new Object value.
-
-### Operator[]()
-
-```cpp
-PropertyLValue<std::string> Napi::Object::operator[] (const char* utf8name);
-```
-- `[in] utf8name`: UTF-8 encoded null-terminated property name.
-
-Returns a [PropertyLValue](propertylvalue.md) as the named property or sets the named property.
-
-```cpp
-PropertyLValue<std::string> Napi::Object::operator[] (const std::string& utf8name);
-```
-- `[in] utf8name`: UTF-8 encoded property name.
-
-Returns a [PropertyLValue](propertylvalue.md) as the named property or sets the named property.
-
-```cpp
-PropertyLValue<uint32_t> Napi::Object::operator[] (uint32_t index);
-```
-- `[in] index`: Element index.
-
-Returns a [PropertyLValue](propertylvalue.md) or sets an indexed property or array element. 
-
-```cpp
-Value Napi::Object::operator[] (const char* utf8name) const;
-```
-- `[in] utf8name`: UTF-8 encoded null-terminated property name.
-
-Returns the named property as a [Value](value.md).
-
-```cpp
-Value Napi::Object::operator[] (const std::string& utf8name) const;
-```
-- `[in] utf8name`: UTF-8 encoded property name.
-
-Returns the named property as a [Value](value.md).
-
-```cpp
-Value Napi::Object::operator[] (uint32_t index) const;
-```
-- `[in] index`: Element index.
-
-Returns an indexed property or array element as a [Value](value.md).
 
 ### Set() 
 
@@ -164,3 +120,74 @@ void Napi::Object::DefineProperties (____ properties)
 
 Defines properties on the object.
 
+### Operator[]()
+
+```cpp
+PropertyLValue<std::string> Napi::Object::operator[] (const char* utf8name);
+```
+- `[in] utf8name`: UTF-8 encoded null-terminated property name.
+
+Returns a [PropertyLValue](propertylvalue.md) as the named property or sets the named property.
+
+```cpp
+PropertyLValue<std::string> Napi::Object::operator[] (const std::string& utf8name);
+```
+- `[in] utf8name`: UTF-8 encoded property name.
+
+Returns a [PropertyLValue](propertylvalue.md) as the named property or sets the named property.
+
+```cpp
+PropertyLValue<uint32_t> Napi::Object::operator[] (uint32_t index);
+```
+- `[in] index`: Element index.
+
+Returns a [PropertyLValue](propertylvalue.md) or sets an indexed property or array element.
+
+```cpp
+Value Napi::Object::operator[] (const char* utf8name) const;
+```
+- `[in] utf8name`: UTF-8 encoded null-terminated property name.
+
+Returns the named property as a [Value](value.md).
+
+```cpp
+Value Napi::Object::operator[] (const std::string& utf8name) const;
+```
+- `[in] utf8name`: UTF-8 encoded property name.
+
+Returns the named property as a [Value](value.md).
+
+```cpp
+Value Napi::Object::operator[] (uint32_t index) const;
+```
+- `[in] index`: Element index.
+
+Returns an indexed property or array element as a [Value](value.md).
+
+#### Example
+```cpp
+#include <napi.h>
+
+using namescape Napi;
+
+Void Init(Env env) {
+
+  // Create a new instance
+  Object obj = Object::New(env);
+
+  // Assign values to properties
+  obj.Set("hello", "world");
+  obj.Set(42, "The Answer to Life, the Universe, and Everything");
+  obj.Set("Douglas Adams", true); 
+
+  // Get properties
+  Value val1 = obj.Get("hello");
+  Value val2 = obj.Get(42);
+  Value val3 = obj.Get("Douglas Adams");
+
+  // Test if objects have properties.
+  bool obj1 = obj.Has("hello"); // true
+  bool obj2 = obj.Has("world"); // false
+
+}
+```
